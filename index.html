@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ISDE Thermisch Rapport — RenovatieDirect</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap');
+:root{
+  --b:#1A3C6E;--b2:#2A5298;--bz:#EBF0FA;
+  --g:#1A7A4A;--gz:#E8F5EE;
+  --o:#C4650A;--oz:#FEF0E3;
+  --g1:#F5F6F8;--g2:#E8EAED;--g3:#BDC1CA;--g4:#6B7280;
+  --t:#1C1F26;--w:#fff;
+  --sh:0 2px 12px rgba(26,60,110,.08);--r:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--g1);color:var(--t);min-height:100vh}
+header{background:var(--b);padding:0 2rem;display:flex;align-items:center;gap:1rem;height:60px;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(26,60,110,.2)}
+.logo{font-size:17px;font-weight:600;color:#fff}.logo span{color:#7EB3FF}
+.htag{font-size:11px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.7);padding:3px 10px;border-radius:20px}
+.hv{font-size:11px;color:rgba(255,255,255,.35);margin-left:auto;font-family:'DM Mono',monospace}
+#hstat{font-size:11px;background:rgba(26,122,74,.3);color:#7EE8A2;padding:3px 10px;border-radius:20px;display:none}
+.wrap{max-width:880px;margin:2rem auto;padding:0 1.5rem 5rem}
+.card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:1.5rem;margin-bottom:1rem}
+.ct{font-size:11px;font-weight:600;color:var(--g4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:1rem}
+label{font-size:12px;color:var(--g4);display:block;margin-bottom:4px;font-weight:500}
+input,select{width:100%;padding:8px 11px;border:1.5px solid var(--g2);border-radius:7px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--t);background:#fff;outline:none;transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus{border-color:var(--b2);box-shadow:0 0 0 3px rgba(42,82,152,.1)}
+.g2g{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:7px;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;border:none;transition:all .15s}
+.bp{background:var(--b);color:#fff;box-shadow:0 2px 8px rgba(26,60,110,.22)}.bp:hover{background:var(--b2);transform:translateY(-1px)}
+.bg{background:var(--g);color:#fff}.bg:hover{opacity:.9;transform:translateY(-1px)}
+.bgh{background:transparent;color:var(--g4);border:1.5px solid var(--g2)}.bgh:hover{background:var(--g1)}
+.bd{background:transparent;color:#C0392B;border:1.5px solid #FADBD8;font-size:12px;padding:4px 10px}.bd:hover{background:#FADBD8}
+.bsm{padding:5px 11px;font-size:12px}
+.steps{display:flex;background:#fff;border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:1.75rem}
+.st{flex:1;display:flex;align-items:center;gap:9px;padding:.8rem 1.2rem;cursor:pointer;border-right:1px solid var(--g2);transition:background .15s}
+.st:last-child{border-right:none}.st:hover{background:var(--g1)}.st.active{background:var(--bz)}
+.sn{width:26px;height:26px;border-radius:50%;background:var(--g2);color:var(--g4);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;transition:all .2s}
+.st.active .sn{background:var(--b);color:#fff}.st.done .sn{background:var(--g);color:#fff}
+.sl{font-size:13px;font-weight:500;color:var(--g4)}.st.active .sl{color:var(--b)}.st.done .sl{color:var(--g)}
+.panel{display:none}.panel.active{display:block}
+.dd{position:relative}
+.ddl{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1.5px solid var(--g2);border-radius:8px;box-shadow:0 8px 24px rgba(26,60,110,.12);z-index:200;max-height:260px;overflow-y:auto;display:none}
+.ddl.open{display:block}
+.ddi{display:flex;align-items:center;gap:10px;padding:.6rem 1rem;cursor:pointer;transition:background .1s;border-bottom:1px solid var(--g1)}
+.ddi:last-child{border-bottom:none}.ddi:hover{background:var(--bz)}
+.av{width:30px;height:30px;border-radius:8px;background:var(--b);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
+.kges{display:flex;align-items:center;gap:12px;background:var(--gz);border:1.5px solid #A8D5B8;border-radius:8px;padding:.75rem 1rem;margin-top:10px}
+.pb{border:1.5px solid var(--g2);border-radius:8px;margin-bottom:10px;overflow:hidden}.pb:hover{border-color:var(--g3)}
+.ph{display:flex;align-items:center;gap:10px;padding:.6rem 1rem;background:var(--g1);border-bottom:1.5px solid var(--g2)}
+.pnr{width:24px;height:24px;border-radius:6px;background:var(--b);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
+.pbody{padding:.85rem 1rem}
+.sr{display:grid;grid-template-columns:90px 90px 1fr auto;gap:8px;align-items:end;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--g2)}
+.sr:last-of-type{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.badge{display:inline-flex;font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500}
+.bhr{background:var(--bz);color:var(--b)}.btr{background:var(--gz);color:var(--g)}
+.bde{background:var(--oz);color:var(--o)}.bpa{background:var(--g1);color:var(--g4);border:1px solid var(--g2)}
+.trow{display:flex;justify-content:space-between;align-items:center;padding:.7rem 1rem;background:var(--g1);border-radius:8px;margin-bottom:8px;border:1.5px solid var(--g2)}
+.prev{background:var(--g1);border:1.5px solid var(--g2);border-radius:8px;padding:1.2rem;font-family:'DM Mono',monospace;font-size:12px;line-height:1.85;white-space:pre;overflow-x:auto;max-height:420px;overflow-y:auto}
+.nav{display:flex;justify-content:space-between;margin-top:1.25rem}
+.info{background:var(--bz);border-left:3px solid var(--b);border-radius:0 7px 7px 0;padding:.6rem 1rem;font-size:12px;color:var(--b);margin-bottom:1rem}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite;vertical-align:middle}
+@keyframes sp{to{transform:rotate(360deg)}}
+.zsp{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:13px;height:13px;border:1.5px solid var(--g2);border-top-color:var(--b);border-radius:50%;animation:sp .6s linear infinite;display:none}
+.zsp.on{display:block}
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--t);color:#fff;padding:.7rem 1.2rem;border-radius:8px;font-size:13px;font-weight:500;box-shadow:0 4px 20px rgba(0,0,0,.2);z-index:9999;opacity:0;transform:translateY(10px);transition:all .25s;pointer-events:none}
+.toast.on{opacity:1;transform:translateY(0)}.toast.ok{background:var(--g)}.toast.err{background:#C0392B}
+h2{font-size:18px;font-weight:600;margin-bottom:1.25rem}
+#loginWrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:70vh}
+.lkaart{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:3rem 2.5rem;max-width:400px;width:100%;text-align:center}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Renovatie<span>Direct</span></div>
+  <div class="htag">ISDE Rapport</div>
+  <div id="hstat"></div>
+  <div class="hv">v6.0</div>
+  <button id="logoutBtn" onclick="logout()" style="display:none;background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.7);padding:4px 12px;border-radius:20px;font-size:11px;cursor:pointer;margin-left:.5rem">Uitloggen</button>
+</header>
+
+<div class="wrap">
+
+  <!-- LOGIN -->
+  <div id="loginWrap">
+    <div class="lkaart">
+      <div class="logo" style="font-size:24px;margin-bottom:.5rem">Renovatie<span>Direct</span></div>
+      <div style="font-size:13px;color:var(--g4);margin-bottom:2rem">ISDE Thermisch Rapport Generator</div>
+      <button class="btn bp" onclick="login()" style="width:100%;justify-content:center;padding:12px;font-size:14px">
+        Inloggen met Zoho CRM
+      </button>
+      <div style="margin-top:1rem;font-size:11px;color:var(--g3)">Eenmalig inloggen — sessie blijft actief</div>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <div id="appWrap" style="display:none">
+
+    <div class="steps">
+      <div class="st active" id="t1" onclick="go(1)"><div class="sn" id="n1">1</div><div class="sl">Klant</div></div>
+      <div class="st" id="t2" onclick="go(2)"><div class="sn" id="n2">2</div><div class="sl">Posities</div></div>
+      <div class="st" id="t3" onclick="go(3)"><div class="sn" id="n3">3</div><div class="sl">Rapport</div></div>
+    </div>
+
+    <!-- STAP 1 -->
+    <div class="panel active" id="p1">
+      <h2>Klant zoeken</h2>
+      <div class="card">
+        <div class="ct">Zoek in Zoho CRM</div>
+        <div class="dd">
+          <div style="position:relative">
+            <input type="text" id="zinp" placeholder="Typ klantnaam..." oninput="onZoek(this.value)" autocomplete="off" style="padding-right:32px"/>
+            <div class="zsp" id="zsp"></div>
+          </div>
+          <div class="ddl" id="ddl"></div>
+        </div>
+        <div id="ksel" style="display:none"></div>
+        <div id="handm" style="margin-top:1rem">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem">
+            <div style="flex:1;height:1px;background:var(--g2)"></div>
+            <span style="font-size:11px;color:var(--g4)">of handmatig invullen</span>
+            <div style="flex:1;height:1px;background:var(--g2)"></div>
+          </div>
+          <div class="g2g">
+            <div><label>Naam</label><input id="kNaam"/></div>
+            <div><label>Straat</label><input id="kStraat"/></div>
+            <div><label>Postcode</label><input id="kPost"/></div>
+            <div><label>Plaats</label><input id="kPlaats"/></div>
+          </div>
+        </div>
+      </div>
+      <div class="nav"><div></div><button class="btn bp" onclick="go(2)">Posities →</button></div>
+    </div>
+
+    <!-- STAP 2 -->
+    <div class="panel" id="p2">
+      <h2>Posities invoeren</h2>
+      <div class="card">
+        <div class="ct">Positie toevoegen</div>
+        <div class="info">Gebruik altijd de <strong>kozijnmaat (Maatvoering)</strong> — niet de losse glasmaat.</div>
+        <div class="g2g" style="gap:12px;margin-bottom:12px">
+          <div><label>Positienummer</label><input id="inpNr" type="number" min="1" style="width:90px"/></div>
+          <div><label>Type</label>
+            <select id="inpType">
+              <option value="KA20150">HR++ glas — KA20150</option>
+              <option value="KA19349">HR+++ triple glas — KA19349</option>
+              <option value="KA23040">Isolerende deur — KA23040</option>
+              <option value="Overige">Isolerend paneel</option>
+            </select>
+          </div>
+        </div>
+        <div id="enkv">
+          <div style="display:grid;grid-template-columns:100px 100px 1fr;gap:10px;align-items:end;margin-bottom:10px">
+            <div><label>Breedte (mm)</label><input type="number" id="eb"/></div>
+            <div><label>Hoogte (mm)</label><input type="number" id="eh"/></div>
+            <div><label>Codering (opt.)</label><input id="ec"/></div>
+          </div>
+          <button class="btn bgh bsm" onclick="togSub()">+ Meerdere glasvakken</button>
+        </div>
+        <div id="subW" style="display:none">
+          <div class="ct" style="margin-bottom:.5rem">Sub-vakken (kozijnmaat in mm)</div>
+          <div id="subRows"></div>
+          <div style="display:flex;gap:8px;margin-top:6px">
+            <button class="btn bgh bsm" onclick="addSub()">+ Glasvak</button>
+            <button class="btn bgh bsm" onclick="togSub()">← Enkelvoudig</button>
+          </div>
+        </div>
+        <div style="margin-top:1rem;text-align:right">
+          <button class="btn bp" onclick="addPos()">+ Positie toevoegen</button>
+        </div>
+      </div>
+      <div id="posW"></div>
+      <div class="nav">
+        <button class="btn bgh" onclick="go(1)">← Terug</button>
+        <button class="btn bp" onclick="go(3)">Rapport genereren →</button>
+      </div>
+    </div>
+
+    <!-- STAP 3 -->
+    <div class="panel" id="p3">
+      <h2>Thermisch rapport</h2>
+      <div class="card">
+        <div class="ct">Totalen</div>
+        <div id="totL"></div>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
+          <div class="ct" style="margin:0">Voorvertoning</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn bgh bsm" onclick="kopieer()">Kopieer</button>
+            <button class="btn bg bsm" id="pdfBtn" onclick="maakPDF()">↓ PDF</button>
+          </div>
+        </div>
+        <div class="prev" id="prev"></div>
+      </div>
+      <div class="nav">
+        <button class="btn bgh" onclick="go(2)">← Terug</button>
+        <button onclick="reset()" style="font-size:12px;padding:5px 11px;color:#C0392B;border:1.5px solid #FADBD8;background:transparent;border-radius:7px;cursor:pointer">Nieuw rapport</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CLIENT_ID = '1000.YLMG5QJ3B6AC7HB43UTDI0LLXPP4YS';
+const CLIENT_SECRET = 'c1dc6fd81c5515f487db52eefb5037dd7d8b9f6d36';
+const REDIRECT = window.location.origin + window.location.pathname;
+const ZOHO_API = 'https://www.zohoapis.eu/crm/v3';
+const ZOHO_AUTH = 'https://accounts.zoho.eu/oauth/v2';
+
+let posities=[], subCount=0, subAan=false, zoekTimer=null;
+let aToken=null, rToken=null;
+
+// ── INIT
+window.addEventListener('DOMContentLoaded', async () => {
+  document.addEventListener('click', e => {
+    if (!document.getElementById('zinp').contains(e.target))
+      document.getElementById('ddl').classList.remove('open');
+  });
+
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+
+  if (code) {
+    window.history.replaceState({}, '', REDIRECT);
+    await wisselCode(code);
+    return;
+  }
+
+  aToken = localStorage.getItem('rd_at');
+  rToken = localStorage.getItem('rd_rt');
+
+  if (aToken) showApp();
+  else showLogin();
+});
+
+function showLogin() {
+  document.getElementById('loginWrap').style.display = 'flex';
+  document.getElementById('appWrap').style.display = 'none';
+  document.getElementById('hstat').style.display = 'none';
+  document.getElementById('logoutBtn').style.display = 'none';
+}
+
+function showApp() {
+  document.getElementById('loginWrap').style.display = 'none';
+  document.getElementById('appWrap').style.display = 'block';
+  document.getElementById('hstat').textContent = '● Zoho verbonden';
+  document.getElementById('hstat').style.display = 'block';
+  document.getElementById('logoutBtn').style.display = 'block';
+}
+
+function login() {
+  const url = `${ZOHO_AUTH}/auth?response_type=code&client_id=${CLIENT_ID}&scope=ZohoCRM.modules.contacts.READ&redirect_uri=${encodeURIComponent(REDIRECT)}&access_type=offline&prompt=consent`;
+  window.location.href = url;
+}
+
+async function wisselCode(code) {
+  try {
+    const r = await fetch(`${ZOHO_AUTH}/token`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/x-www-form-urlencoded'},
+      body: new URLSearchParams({code, client_id:CLIENT_ID, client_secret:CLIENT_SECRET, redirect_uri:REDIRECT, grant_type:'authorization_code'})
+    });
+    const d = await r.json();
+    if (d.access_token) {
+      aToken = d.access_token;
+      rToken = d.refresh_token;
+      localStorage.setItem('rd_at', aToken);
+      if (rToken) localStorage.setItem('rd_rt', rToken);
+      showApp();
+      toast('Ingelogd!', 'ok');
+    } else {
+      console.error(d);
+      showLogin();
+      toast('Inloggen mislukt', 'err');
+    }
+  } catch(e) {
+    console.error(e);
+    showLogin();
+    toast('Verbindingsfout', 'err');
+  }
+}
+
+async function vernieuw() {
+  if (!rToken) return false;
+  try {
+    const r = await fetch(`${ZOHO_AUTH}/token`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/x-www-form-urlencoded'},
+      body: new URLSearchParams({refresh_token:rToken, client_id:CLIENT_ID, client_secret:CLIENT_SECRET, grant_type:'refresh_token'})
+    });
+    const d = await r.json();
+    if (d.access_token) {
+      aToken = d.access_token;
+      localStorage.setItem('rd_at', aToken);
+      return true;
+    }
+    return false;
+  } catch { return false; }
+}
+
+function logout() {
+  localStorage.removeItem('rd_at');
+  localStorage.removeItem('rd_rt');
+  aToken = null; rToken = null;
+  showLogin();
+}
+
+// ── ZOHO ZOEKEN
+async function zoekInZoho(naam) {
+  document.getElementById('zsp').classList.add('on');
+  try {
+    let r = await fetch(
+      `${ZOHO_API}/Contacts/search?criteria=(Full_Name:contains:${encodeURIComponent(naam)})&fields=Full_Name,Mailing_Street,Mailing_City,Mailing_Zip&per_page=6`,
+      {headers: {'Authorization': `Zoho-oauthtoken ${aToken}`}}
+    );
+    if (r.status === 401) {
+      const ok = await vernieuw();
+      if (!ok) { logout(); return; }
+      r = await fetch(
+        `${ZOHO_API}/Contacts/search?criteria=(Full_Name:contains:${encodeURIComponent(naam)})&fields=Full_Name,Mailing_Street,Mailing_City,Mailing_Zip&per_page=6`,
+        {headers: {'Authorization': `Zoho-oauthtoken ${aToken}`}}
+      );
+    }
+    const d = await r.json();
+    const klanten = (d.data||[]).map(c => ({
+      naam: c.Full_Name||'', straat: c.Mailing_Street||'',
+      post: c.Mailing_Zip||'', stad: c.Mailing_City||''
+    }));
+    toonDD(klanten);
+  } catch(e) {
+    console.error(e);
+    toonDD([]);
+  } finally {
+    document.getElementById('zsp').classList.remove('on');
+  }
+}
+
+function toonDD(klanten) {
+  const dd = document.getElementById('ddl');
+  dd.innerHTML = klanten.length
+    ? klanten.map(k=>`<div class="ddi" onclick='selK(${JSON.stringify(k).replace(/"/g,"&quot;")})'>
+        <div class="av">${ini(k.naam)}</div>
+        <div><div style="font-size:13px;font-weight:500">${k.naam}</div>
+        <div style="font-size:11px;color:var(--g4)">${[k.straat,k.post,k.stad].filter(Boolean).join(' · ')}</div></div>
+      </div>`).join('')
+    : '<div style="padding:.75rem 1rem;font-size:13px;color:var(--g4)">Geen klanten gevonden</div>';
+  dd.classList.add('open');
+}
+
+function ini(n) { return (n||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2); }
+
+function selK(k) {
+  document.getElementById('ddl').classList.remove('open');
+  document.getElementById('zinp').value = k.naam;
+  document.getElementById('kNaam').value = k.naam;
+  document.getElementById('kStraat').value = k.straat;
+  document.getElementById('kPost').value = k.post;
+  document.getElementById('kPlaats').value = k.stad;
+  document.getElementById('ksel').style.display = 'block';
+  document.getElementById('ksel').innerHTML = `<div class="kges">
+    <div class="av">${ini(k.naam)}</div>
+    <div style="flex:1"><div style="font-weight:500;font-size:13px;color:var(--g)">✓ ${k.naam}</div>
+    <div style="font-size:11px;color:var(--g4)">${[k.straat,k.post,k.stad].filter(Boolean).join(', ')}</div></div>
+    <button onclick="wisK()" style="background:none;border:none;color:var(--g4);cursor:pointer;font-size:16px">✕</button>
+  </div>`;
+  document.getElementById('handm').style.display = 'none';
+  toast('Klant geselecteerd', 'ok');
+}
+
+function wisK() {
+  document.getElementById('zinp').value = '';
+  document.getElementById('ksel').style.display = 'none';
+  document.getElementById('handm').style.display = 'block';
+  ['kNaam','kStraat','kPost','kPlaats'].forEach(id=>document.getElementById(id).value='');
+}
+
+function onZoek(v) {
+  clearTimeout(zoekTimer);
+  if (v.length < 2) { document.getElementById('ddl').classList.remove('open'); return; }
+  zoekTimer = setTimeout(() => zoekInZoho(v), 350);
+}
+
+// ── POSITIES
+function togSub() {
+  subAan = !subAan;
+  document.getElementById('enkv').style.display = subAan ? 'none' : 'block';
+  document.getElementById('subW').style.display = subAan ? 'block' : 'none';
+  if (subAan && !document.querySelectorAll('#subRows .sr').length) addSub();
+}
+
+function addSub() {
+  const id = subCount++;
+  const d = document.createElement('div');
+  d.className = 'sr'; d.id = 'sr'+id;
+  d.innerHTML = `<div><label>Breedte (mm)</label><input type="number" id="s${id}b"/></div>
+    <div><label>Hoogte (mm)</label><input type="number" id="s${id}h"/></div>
+    <div><label>Codering (opt.)</label><input id="s${id}c"/></div>
+    <div style="padding-top:18px"><button class="btn bd" onclick="remSub(${id})">✕</button></div>`;
+  document.getElementById('subRows').appendChild(d);
+}
+
+function remSub(id) { const el=document.getElementById('sr'+id); if(el)el.remove(); }
+
+function defCode(t) {
+  return {
+    KA20150:'UG 1.1. KOMO 5/18/4 /(1,2) Maximale U-waarde [W/m2K]',
+    KA19349:'UG 0.6 triple glas 4/14/4/14/4 Spouw: Aluminium Alu-blank',
+    KA23040:'Isolerende deur Ud \u2264 1,0 [ Veka Softline 82NL ]',
+    Overige:'Isolerend paneel (24mm) Maximale U-waarde [W/m2K]'
+  }[t]||'';
+}
+
+function typlbl(c) { return {KA20150:'HR++ glas',KA19349:'HR+++ triple',KA23040:'Deur',Overige:'Paneel'}[c]||c; }
+function typbdg(c) { return {KA20150:'bhr',KA19349:'btr',KA23040:'bde',Overige:'bpa'}[c]||'bpa'; }
+
+function addPos() {
+  const nr = parseInt(document.getElementById('inpNr').value)||posities.length+1;
+  const type = document.getElementById('inpType').value;
+  let subs = [];
+  if (subAan) {
+    document.querySelectorAll('#subRows .sr').forEach(row=>{
+      const id=row.id.replace('sr','');
+      const b=parseFloat(document.getElementById('s'+id+'b')?.value||0);
+      const h=parseFloat(document.getElementById('s'+id+'h')?.value||0);
+      if(b&&h) subs.push({nr:(subs.length+1)+'.1',b,h,code:document.getElementById('s'+id+'c')?.value||''});
+    });
+    if(!subs.length){toast('Voeg minstens één glasvak toe','err');return;}
+  } else {
+    const b=parseFloat(document.getElementById('eb').value||0);
+    const h=parseFloat(document.getElementById('eh').value||0);
+    if(!b||!h){toast('Vul breedte en hoogte in','err');return;}
+    subs=[{nr:'',b,h,code:document.getElementById('ec').value||''}];
+  }
+  posities.push({nr,type,subs,totM2:subs.reduce((s,x)=>s+(x.b/1000)*(x.h/1000),0)});
+  posities.sort((a,b)=>a.nr-b.nr);
+  renderPos();
+  document.getElementById('inpNr').value='';
+  document.getElementById('eb').value='';
+  document.getElementById('eh').value='';
+  document.getElementById('ec').value='';
+  if(subAan){document.getElementById('subRows').innerHTML='';subCount=0;addSub();}
+  toast('Positie '+nr+' toegevoegd','ok');
+}
+
+function remPos(i) { posities.splice(i,1); renderPos(); }
+
+function renderPos() {
+  const w=document.getElementById('posW');
+  if(!posities.length){w.innerHTML='';return;}
+  w.innerHTML=posities.map((p,i)=>`<div class="pb">
+    <div class="ph">
+      <div class="pnr">${p.nr}</div>
+      <span class="badge ${typbdg(p.type)}">${typlbl(p.type)}</span>
+      <span style="font-size:12px;color:var(--g4);margin-left:auto">${p.totM2.toFixed(2)} m²</span>
+      <button class="btn bd bsm" onclick="remPos(${i})" style="margin-left:8px">✕</button>
+    </div>
+    <div class="pbody">
+      ${p.subs.map(s=>`<div style="display:flex;gap:16px;font-size:12px;color:var(--g4);margin-bottom:3px">
+        ${s.nr?`<span style="font-family:'DM Mono',monospace;font-weight:500;color:var(--t);width:28px">${s.nr}</span>`:''}
+        <span>${(s.b/1000).toFixed(3)} × ${(s.h/1000).toFixed(3)} m</span>
+        <span style="font-weight:500;color:var(--b)">${((s.b/1000)*(s.h/1000)).toFixed(4)} m²</span>
+      </div>`).join('')}
+    </div>
+  </div>`).join('');
+}
+
+// ── RAPPORT
+function getDatum() {
+  const d=new Date();
+  return `${['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'][d.getDay()]} ${d.getDate()}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`;
+}
+
+function getBrief() {
+  const naam=document.getElementById('kNaam').value||'Geachte klant';
+  const straat=document.getElementById('kStraat').value||'';
+  const post=document.getElementById('kPost').value||'';
+  const plaats=document.getElementById('kPlaats').value||'';
+  const tot={KA20150:0,KA19349:0,KA23040:0,Overige:0};
+  posities.forEach(p=>tot[p.type]+=p.totM2);
+  const items=[
+    {lbl:'Isolerend HR++ glas',code:'KA20150',m2:tot.KA20150},
+    {lbl:'HR+++ triple glas',code:'KA19349',m2:tot.KA19349},
+    {lbl:'Isolerende deuren',code:'KA23040',m2:tot.KA23040},
+    {lbl:'Isolerende panelen',code:'Overige',m2:tot.Overige},
+  ].filter(x=>x.m2>0);
+  return{naam,straat,post,plaats,datum:getDatum(),items};
+}
+
+function renderRapport() {
+  const{naam,straat,post,plaats,datum,items}=getBrief();
+  document.getElementById('totL').innerHTML=items.map(x=>`<div class="trow">
+    <div><div style="font-size:13px;font-weight:500">${x.lbl}</div>
+    <div style="font-size:11px;color:var(--g4);font-family:'DM Mono',monospace">${x.code}</div></div>
+    <div style="font-size:18px;font-weight:600;color:var(--b)">${Math.round(x.m2)} m²</div>
+  </div>`).join('');
+
+  const rijen=posities.flatMap(p=>p.subs.map((s,si)=>{
+    const bm=(s.b/1000).toFixed(3),hm=(s.h/1000).toFixed(3),m2=((s.b/1000)*(s.h/1000)).toFixed(4);
+    return `${(si===0?String(p.nr):'').padEnd(5)}${(s.nr||'').padEnd(6)}${bm.padEnd(8)}${hm.padEnd(10)}${m2.padEnd(11)}${(s.code||defCode(p.type)).padEnd(52)}${p.type}`;
+  })).join('\n');
+
+  const totR=items.map(x=>`${x.lbl.padEnd(28)}${Math.round(x.m2)} m²   ${x.code}`).join('\n');
+
+  document.getElementById('prev').textContent=
+`${naam}\n${straat}\n${post} ${plaats}\n\nEnschede, ${datum}\n\nBetreft: Uw thermisch rapport\n\nGeachte klant,\n\nMiddels deze weg bevestigen wij de volledige betaling bij uw order\nen voorzien wij u van uw thermisch rapport t.b.v. uw subsidie aanvraag:\n\nPos.  Sub   Breedte  Hoogte    Opp.(m2)   Codering                                            Meldcode\n${'─'.repeat(108)}\n${rijen}\n${'─'.repeat(108)}\n\nTotalen\n${'─'.repeat(58)}\n${totR}\n${'─'.repeat(58)}\n\nBij vragen: https://www.rvo.nl/subsidies-financiering/isde\n\nMet vriendelijke groet,\n\nJeffrey Nowosielski\nRenovatiedirect B.V. | De Reulver 74, 7544 RT Enschede\nT: 036 410 0200 | info@renovatiedirect.nl | KvK 66554446`;
+}
+
+function kopieer() {
+  navigator.clipboard.writeText(document.getElementById('prev').textContent).then(()=>toast('Gekopieerd!','ok'));
+}
+
+async function maakPDF() {
+  const btn=document.getElementById('pdfBtn');
+  btn.innerHTML='<span class="spin"></span> Even wachten...';btn.disabled=true;
+  await new Promise(r=>setTimeout(r,80));
+  try {
+    const{jsPDF}=window.jspdf;
+    const doc=new jsPDF({unit:'mm',format:'a4'});
+    const{naam,straat,post,plaats,datum,items}=getBrief();
+    const B=[26,60,110],GR=[100,100,110],LG=[245,246,248],WT=[255,255,255],TX=[28,31,38];
+
+    doc.setFillColor(...B);doc.rect(0,0,210,22,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(13);doc.setTextColor(...WT);
+    doc.text('Renovatie',14,13);doc.setTextColor(126,179,255);doc.text('Direct',14+doc.getTextWidth('Renovatie'),13);
+    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(200,215,240);
+    doc.text('ISDE Thermisch Rapport',14,19);doc.setTextColor(150,180,220);doc.text(datum,196,13,{align:'right'});
+
+    let y=32;
+    doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(...TX);doc.text(naam,14,y);y+=5.5;
+    doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(...GR);
+    if(straat){doc.text(straat,14,y);y+=5;}
+    if(post||plaats){doc.text(`${post} ${plaats}`.trim(),14,y);y+=5;}
+    y+=5;
+    doc.setFontSize(11);doc.setFont('helvetica','bold');doc.setTextColor(...TX);doc.text('Betreft: Uw thermisch rapport',14,y);y+=3;
+    doc.setDrawColor(...B);doc.setLineWidth(0.6);doc.line(14,y,196,y);y+=7;
+    doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(...TX);
+    const il=doc.splitTextToSize('Middels deze weg bevestigen wij de volledige betaling bij uw order en voorzien wij u van uw thermisch rapport t.b.v. uw subsidie aanvraag:',182);
+    doc.text(il,14,y);y+=il.length*4.8+5;
+
+    doc.setFillColor(...B);doc.roundedRect(14,y,182,8,2,2,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...WT);
+    ['Pos.','Sub','Breedte','Hoogte','m²','Codering','Meldcode'].forEach((h,i)=>doc.text(h,[17,28,40,58,74,85,172][i],y+5.2));
+    y+=11;
+
+    let rij=0;
+    posities.forEach(p=>{
+      p.subs.forEach((s,si)=>{
+        if(y>270){doc.addPage();y=20;}
+        if(rij%2===0){doc.setFillColor(...LG);doc.rect(14,y-3.5,182,7,'F');}
+        const bm=(s.b/1000).toFixed(3),hm=(s.h/1000).toFixed(3),m2=((s.b/1000)*(s.h/1000)).toFixed(4);
+        doc.setFont('helvetica',si===0?'bold':'normal');doc.setFontSize(8.5);doc.setTextColor(...TX);
+        if(si===0)doc.text(String(p.nr),17,y);
+        doc.setFont('helvetica','normal');
+        if(s.nr)doc.text(s.nr,28,y);
+        doc.text(bm,40,y);doc.text(hm,58,y);
+        doc.setFont('helvetica','bold');doc.text(m2,74,y);
+        doc.setFont('helvetica','normal');doc.setFontSize(7.5);
+        const code=s.code||defCode(p.type);
+        doc.text(code.length>52?code.slice(0,50)+'…':code,85,y);
+        const bc={KA20150:[42,82,152],KA19349:[26,122,74],KA23040:[196,101,10],Overige:[100,110,120]}[p.type]||[100,110,120];
+        doc.setTextColor(...bc);doc.setFont('helvetica','bold');doc.setFontSize(8);doc.text(p.type,172,y);
+        doc.setTextColor(...TX);y+=7;rij++;
+      });
+    });
+
+    y+=6;
+    doc.setFillColor(...B);doc.roundedRect(14,y,182,8,2,2,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(...WT);doc.text('Totalen',17,y+5.2);y+=12;
+
+    items.forEach(x=>{
+      if(y>275){doc.addPage();y=20;}
+      doc.setFillColor(...LG);doc.roundedRect(14,y-4,182,9,1.5,1.5,'F');
+      doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(...TX);doc.text(x.lbl,18,y);
+      doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(...B);doc.text(`${Math.round(x.m2)} m²`,110,y);
+      doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(...GR);doc.text(x.code,130,y);
+      y+=11;
+    });
+
+    y+=6;
+    doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(...GR);
+    doc.text('Bij vragen: https://www.rvo.nl/subsidies-financiering/isde',14,y);y+=10;
+    doc.setFontSize(9);doc.setTextColor(...TX);doc.text('Met vriendelijke groet,',14,y);y+=8;
+    doc.setFont('helvetica','bold');doc.text('Jeffrey Nowosielski',14,y);y+=5;
+    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(...GR);
+    doc.text('Renovatiedirect B.V. | De Reulver 74, 7544 RT Enschede | info@renovatiedirect.nl | 036 410 0200',14,y);
+
+    doc.setFillColor(...B);doc.rect(0,284,210,13,'F');
+    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(...WT);
+    doc.text('Renovatiedirect B.V.  |  KvK 66554446  |  BTW NL856605736B01',105,291.5,{align:'center'});
+
+    doc.save(`ISDE_${(document.getElementById('kNaam').value||'klant').replace(/\s/g,'_')}_${new Date().toLocaleDateString('nl-NL').replace(/\//g,'-')}.pdf`);
+    toast('PDF aangemaakt!','ok');
+  } catch(e) { toast('PDF fout: '+e.message,'err'); }
+  btn.innerHTML='↓ PDF';btn.disabled=false;
+}
+
+function go(n) {
+  [1,2,3].forEach(i=>{
+    document.getElementById('p'+i).classList.toggle('active',i===n);
+    const t=document.getElementById('t'+i),nr=document.getElementById('n'+i);
+    t.classList.remove('active','done');
+    if(i<n){t.classList.add('done');nr.textContent='✓';}
+    else if(i===n){t.classList.add('active');nr.textContent=i;}
+    else{nr.textContent=i;}
+  });
+  if(n===3)renderRapport();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function reset() {
+  if(!confirm('Nieuw rapport beginnen?'))return;
+  posities=[];subAan=false;
+  ['kNaam','kStraat','kPost','kPlaats','zinp','inpNr','eb','eh','ec'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('posW').innerHTML='';
+  document.getElementById('ksel').style.display='none';
+  document.getElementById('handm').style.display='block';
+  document.getElementById('enkv').style.display='block';
+  document.getElementById('subW').style.display='none';
+  go(1);
+}
+
+function toast(msg,type='ok') {
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.className='toast '+type+' on';
+  setTimeout(()=>el.classList.remove('on'),2800);
+}
+</script>
+</body>
+</html>
